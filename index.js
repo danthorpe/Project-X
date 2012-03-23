@@ -7,7 +7,7 @@ var http = require('http');
 var path = require('path');
 var fs = require('fs');
  
-http.createServer(function (request, response) {
+var server = http.createServer(function (request, response) {
      
     var filePath = './node_modules/socket.io/lib' + request.url;
      
@@ -31,11 +31,11 @@ http.createServer(function (request, response) {
         }
     });
      
-}).listen(1234);
+}).listen(6789);
 
 
 var io = require('socket.io'),
-    socket = io.listen(6789),
+    socket = io.listen(server),
 
     Message = require('./lib/message'),
     Store = require('./lib/store'),
