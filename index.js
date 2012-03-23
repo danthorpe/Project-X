@@ -37,11 +37,67 @@ var server = http.createServer(function (request, response) {
 var io = require('socket.io'),
     socket = io.listen(server),
 
-    Message = require('./lib/message'),
-    Store = require('./lib/store'),
-    Topic = require('./lib/topic'),
-    User = require('./lib/user'),
+    Message = require('./lib/message');
 
-    users = new Store(),
-    topics = new Store();
 
+/**
+ * Here we go...
+ * @param {[type]} socket [description]
+ * @return {[type]}  [description]
+ */
+socket.on('connection', function (socket) {
+
+    /**
+     * Incoming
+     * @param {[type]} data [description]
+     * @return {[type]}  [description]
+     */
+    socket.on('message', function (data) {
+
+        switch(data.type.toLowerCase()) {
+
+            case 'content':
+                socket.emit('message', data);
+                socket.broadcast.emit('message', data);
+                break;
+
+            case 'join':
+                socket.join(data.topic);
+                socket.emit('message', Message.topic(data.topic));
+                socket.broadcast.emit('message', Message.connection(data.topic, data.member));
+                break;
+
+            case 'leave':
+                socket.leave(data.topic);
+                socket.broadcast.emit('message', Message.disconnection(data.topic, data.member));
+                break;
+
+        }
+
+    });
+
+    /**
+     * Incoming
+     * @param {[type]} data [description]
+     * @return {[type]}  [description]
+     */
+    socket.on('connect', function (data) {
+
+        socket.join(data.topic);
+        socket.broadcast.emit('message', Message.connection(data.topic, data.member));
+
+    });
+
+    /**
+     * Incoming
+     * @param {[type]} data [description]
+     * @return {[type]}  [description]
+     */
+    // socket.on('disconnect', function (data) {
+
+    //     socket.leave(data.topic);
+    //     socket.broadcast.emit('message', Message.disconnection(data.topic, data.member));
+
+    // });
+
+});
