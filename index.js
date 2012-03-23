@@ -1,14 +1,12 @@
 
-/**
- * Import dependencies
- */
-var Server = require('./lib/server');
+var io = require('socket.io'),
+    socket = io.listen(6789),
 
-/**
- * Create the server instance
- */
-new Server(6789).on('open', function(socket) {
+    Message = require('./lib/message'),
+    Store = require('./lib/store'),
+    Topic = require('./lib/topic'),
+    User = require('./lib/user'),
 
-    console.log('Client connection created from address ' + socket.remoteAddress);
+    users = new Store(),
+    topics = new Store();
 
-});
